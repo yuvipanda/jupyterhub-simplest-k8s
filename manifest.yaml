@@ -26,7 +26,12 @@ spec:
     spec:
       containers:
       - name: hub
-        image: yuvipanda/simplehub:v1
+        image: yuvipanda/simplehub:v1.1
+        env:
+        - name: POD_NAMESPACE
+          valueFrom:
+            fieldRef:
+              fieldPath: metadata.namespace
         ports:
           - containerPort: 8000
             name: hub-proxy
