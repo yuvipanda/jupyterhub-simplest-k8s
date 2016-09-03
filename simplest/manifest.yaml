@@ -11,7 +11,7 @@ spec:
     spec:
       containers:
       - name: hub-proxy-container
-        image: yuvipanda/simplehub:v1.2
+        image: yuvipanda/simplehub:v1.3
         env:
         - name: POD_NAMESPACE
           valueFrom:
