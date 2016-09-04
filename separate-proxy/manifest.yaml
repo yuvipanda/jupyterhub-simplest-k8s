@@ -7,32 +7,10 @@ data:
   # Please generate a new one for your own deployment!
   auth.configproxy-token: Kev4Shai9phai0Eez2aiyaefaepheutei3baehaiseipheef1Ah2cah4xeaquohr
 ---
-apiVersion: extensions/v1beta1
-kind: Deployment
-metadata:
-  name: proxy-deployment
-spec:
-  replicas: 1
-  template:
-    metadata:
-      labels:
-        name: proxy-pod
-    spec:
-      containers:
-      - name: proxy-container
-        image: yuvipanda/nchp:v1
-        env:
-          - name: CONFIGPROXY_AUTH_TOKEN
-            valueFrom:
-              configMapKeyRef:
-                name: hub-config
-                key: auth.configproxy-token
-        ports:
-          - containerPort: 8000
-            name: proxy-public
-          - containerPort: 8001
-            name: api
----
+# We put services before deployments, so that the env variables required to discover
+# the services' IPs are present in the containers when they start. If we don't do this,
+# it is possible some pods will get created before the service objects exist, and will
+# not get the appropriate env variables until a restart.
 apiVersion: v1
 kind: Service
 metadata:
@@ -57,6 +35,18 @@ spec:
     - protocol: TCP
       port: 80
       targetPort: 8000
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: hub
+spec:
+  selector:
+    name: hub-pod
+  ports:
+    - protocol: TCP
+      port: 8081
+      targetPort: 8081
 ---
 apiVersion: extensions/v1beta1
 kind: Deployment
@@ -86,14 +76,29 @@ spec:
           - containerPort: 8081
             name: hub
 ---
-apiVersion: v1
-kind: Service
+apiVersion: extensions/v1beta1
+kind: Deployment
 metadata:
-  name: hub
+  name: proxy-deployment
 spec:
-  selector:
-    name: hub-pod
-  ports:
-    - protocol: TCP
-      port: 8081
-      targetPort: 8081
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        name: proxy-pod
+    spec:
+      containers:
+      - name: proxy-container
+        image: yuvipanda/nchp:v1
+        env:
+          - name: CONFIGPROXY_AUTH_TOKEN
+            valueFrom:
+              configMapKeyRef:
+                name: hub-config
+                key: auth.configproxy-token
+        ports:
+          - containerPort: 8000
+            name: proxy-public
+          - containerPort: 8001
+            name: api
+---
