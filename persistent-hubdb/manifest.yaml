@@ -5,6 +5,12 @@
 #   gcloud compute disks create hub-workdir-01 --size 1GiB
 #
 # The name should match the pdName field in the PersistentVolume object.
+#
+# When you are done, remember to delete the disks manually, or you will
+# continue to be charged for them! You can delete disks with:
+#
+#   gcloud compute disks delete hub-workdir-01
+#
 # This can eventually be automated when https://github.com/kubernetes/kubernetes/blob/master/docs/proposals/volume-provisioning.md
 # lands.
 #
